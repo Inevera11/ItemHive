@@ -9,22 +9,22 @@ const Sidebar: React.FC = () => {
             <div className="boczny_pasek__menu">
                 <ul>
                     <li>
-                        <a href="">Strona główna</a>
+                        <a href="/">Strona główna</a>
                     </li>
                     <li>
-                        <a href="">Pokaż moją kolekcję</a>
+                        <a href="/collection">Pokaż moją kolekcję</a>
                     </li>
                     <li>
-                        <a href="">Edytuj moją kolekcję</a>
+                        <a href="">(no-op) Edytuj moją kolekcję</a> {/* TODO, jeśli ten element będzie zachowany jako osobny, mówione było że duplikowałby edycję z "Pokaż moją kolekcję"*/}
                     </li>
                     <li>
-                        <a href="">Pokaż statystyki</a>
+                        <a href="/statistics">Pokaż statystyki</a> {/* Obecnie pokazuje statystyki dla wzsystkich przedmiotów i skala czasu nie jest zmienialna */}
                     </li>
                     <li className="bottom1">
-                        <a href="">Zmień kolekcję</a>
+                        <a href="">(no-op) Zmień kolekcję</a>  {/* Brak implementacji */}
                     </li>
                     <li className="bottom2">
-                        <a href="">Wyloguj mnie</a>
+                        <a href="">(no-op) Wyloguj mnie</a> {/* Brak implementacji */}
                     </li>
                 </ul>
             </div>

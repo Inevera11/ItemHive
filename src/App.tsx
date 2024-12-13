@@ -1,34 +1,33 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 import Sidebar from './sidebar';
-import { BlogProvider } from './BlogContext';
-import BlogComponent from './BlogComponent';
 import './app.css';
+import Home from './Home';
+import Collection from './Collection';
+import Statistics from './Statistics';
+import NewItem from './NewItem';
+import MockState from './MockState';
+import { CollectionProvider } from './CollectionContext';
 
-function App() {
-    const [count, setCount] = useState(0);
-
+const App: React.FC = () => {
     return (
-        <BlogProvider>
-            <div className="app-container">
-                <Sidebar />
-                <div className="content-container">
-                    <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
-                        <img src={reactLogo} alt="React logo" />
-                    </a>
-                    <h1 className="text-orange-400">Item Hive</h1>
-                    <button className="bg-teal-400" onClick={() => setCount(count + 1)}>
-                        count is {count}
-                    </button>
-                    <p>
-                        Edit <code>src/App.tsx</code> and save to test HMR
-                    </p>
-                    <p className="text-3xl font-bold underline">Click on the Vite and React logos to learn more</p>
-                    <BlogComponent />
+        <CollectionProvider>
+            <Router>
+                <div className='app-container'>
+                    <Sidebar />
+                    <div className='content-container'>
+                        <Routes>
+                            <Route path='/' element={<Home />} />
+                            <Route path='/collection' element={<Collection />} />
+                            <Route path='/collection/add' element={<NewItem />} />
+                            <Route path='/statistics' element={<Statistics />} />
+                            <Route path='/mockstate' element={<MockState />} />
+                        </Routes>
+                    </div>
                 </div>
-            </div>
-        </BlogProvider>
+            </Router>
+        </CollectionProvider>
     );
-}
+};
 
 export default App;

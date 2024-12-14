@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { initData } from './initData';
 
 // TODO
 // Interfejs dla danych o przedmiocie, kiedy będzie dodawane więcej kolekcji niż 1, wtedy trzeba będzie przypisać informacje o kolekcji do której należy przedmiot
 interface Item {
     identifier: string;
+    name: string;
     updates: {
         timestamp: number;
         absoluteAmount: number;
@@ -13,6 +15,7 @@ interface Item {
 
 interface CollectionContextType {
     items: Item[];
+    initItems: () => void;
     addItem: (item: Item) => void;
     setItems: (items: Item[]) => void;
 }
@@ -39,15 +42,15 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         localStorage.setItem('collectionItems', JSON.stringify(newItems));
     };
 
+    const initItems = () => {
+        replaceItems(initData);
+    };
+
     useEffect(() => {
         localStorage.setItem('collectionItems', JSON.stringify(items));
     }, [items]);
 
-    return (
-        <CollectionContext.Provider value={{ items, addItem, setItems: replaceItems }}>
-            {children}
-        </CollectionContext.Provider>
-    );
+    return <CollectionContext.Provider value={{ items, addItem, setItems: replaceItems, initItems }}>{children}</CollectionContext.Provider>;
 };
 
 export const useCollection = () => {

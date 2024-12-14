@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { useCollection } from './CollectionContext'; // Przechowuje dane w localstorage i pozwala dodawać nowe dane przez addItem
+import { useCollection } from '../context/CollectionContext'; // Przechowuje dane w localstorage i pozwala dodawać nowe dane przez addItem
 
 // Dodawanie nowych przedmiotów (możnaby zmienić ten komponent aby mógł wyświetlać dane o istniejących przedmiotach)
 
-const NewItem: React.FC = () => {
+const ItemForm: React.FC = () => {
     const { addItem } = useCollection();
     const [formData, setFormData] = useState({
-        identifier: '',
+        name: '',
         amount: '',
         timestamp: '',
-        user: ''
+        user: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value
+            [name]: value,
         });
     };
 
@@ -24,14 +24,15 @@ const NewItem: React.FC = () => {
         e.preventDefault();
         const timestampInMillis = new Date(formData.timestamp).getTime();
         const structuredData = {
-            identifier: formData.identifier,
+            identifier: formData.name.replace(/\s+/g, ''),
+            name: formData.name,
             updates: [
                 {
                     timestamp: timestampInMillis,
                     absoluteAmount: Number(formData.amount),
-                    user: formData.user
-                }
-            ]
+                    user: formData.user,
+                },
+            ],
         };
         addItem(structuredData);
     };
@@ -41,50 +42,32 @@ const NewItem: React.FC = () => {
             <div>
                 <label>
                     Nazwa przedmiotu:
-                    <input
-                        type='text'
-                        name='identifier'
-                        value={formData.identifier}
-                        onChange={handleChange}
-                    />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 </label>
             </div>
             <div>
                 <label>
                     Ilość:
-                    <input
-                        type='number'
-                        name='amount'
-                        value={formData.amount}
-                        onChange={handleChange}
-                    />
+                    <input type="number" name="amount" value={formData.amount} onChange={handleChange} />
                 </label>
             </div>
             <div>
                 <label>
                     Partia:
-                    <input
-                        type='date'
-                        name='timestamp'
-                        value={formData.timestamp}
-                        onChange={handleChange}
-                    />
+                    <input type="date" name="timestamp" value={formData.timestamp} onChange={handleChange} />
                 </label>
             </div>
             <div>
                 <label>
                     Kupujący:
-                    <input
-                        type='text'
-                        name='user'
-                        value={formData.user}
-                        onChange={handleChange}
-                    />
+                    <input type="text" name="user" value={formData.user} onChange={handleChange} />
                 </label>
             </div>
-            <button type='submit' className='text-orange-400'>Dodaj</button>
+            <button type="submit" className="text-orange-400">
+                Dodaj
+            </button>
         </form>
     );
 };
 
-export default NewItem;
+export default ItemForm;

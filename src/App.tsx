@@ -1,27 +1,33 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-function App() {
-    const [count, setCount] = useState(0);
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
+import Sidebar from './sidebar';
+import './app.css';
+import Home from './Home';
+import Collection from './Collection';
+import Statistics from './Statistics';
+import NewItem from './NewItem';
+import MockState from './MockState';
+import { CollectionProvider } from './CollectionContext';
+
+const App: React.FC = () => {
     return (
-        <>
-            <div>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} alt="React logo" />
-                </a>
-            </div>
-            <h1 className="text-orange-400">Item Hive</h1>
-            <div>
-                <button className="bg-teal-400" onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="text-3xl font-bold underline">Click on the Vite and React logos to learn more</p>
-        </>
+        <CollectionProvider>
+            <Router>
+                <div className='app-container'>
+                    <Sidebar />
+                    <div className='content-container'>
+                        <Routes>
+                            <Route path='/' element={<Home />} />
+                            <Route path='/collection' element={<Collection />} />
+                            <Route path='/collection/add' element={<NewItem />} />
+                            <Route path='/statistics' element={<Statistics />} />
+                            <Route path='/mockstate' element={<MockState />} />
+                        </Routes>
+                    </div>
+                </div>
+            </Router>
+        </CollectionProvider>
     );
-}
+};
 
 export default App;

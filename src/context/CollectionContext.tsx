@@ -3,7 +3,7 @@ import { initData } from './initData';
 
 // TODO
 // Interfejs dla danych o przedmiocie, kiedy będzie dodawane więcej kolekcji niż 1, wtedy trzeba będzie przypisać informacje o kolekcji do której należy przedmiot
-interface Item {
+export interface Item {
     identifier: string;
     name: string;
     updates: {

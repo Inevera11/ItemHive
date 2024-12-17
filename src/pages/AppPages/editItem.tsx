@@ -5,7 +5,7 @@ const EditItem = () => {
     const { item } = useParams();
     return (
         <div>
-            <p>EditItem{item}</p>
+            <p>Edycja przedmiotu {item}</p>
             <NewItem />
         </div>
     );

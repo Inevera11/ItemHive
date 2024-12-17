@@ -5,7 +5,7 @@ const Statistics = () => {
     const { item } = useParams();
     return (
         <div>
-            <p>Stat {item}</p>
+            <p>Statystyki przedmiotu {item}</p>
             <Chart />
         </div>
     );

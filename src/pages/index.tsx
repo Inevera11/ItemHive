@@ -6,7 +6,7 @@ const Index = () => {
     const { initItems } = useCollection();
 
     return (
-        <div>
+        <div className="h-screen flex flex-col items-center gap-10 pt-20">
             <h1>Witaj w ItemHive</h1>
             <Button onClick={initItems}>
                 <Link to="login">Mam już konto</Link>

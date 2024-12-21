@@ -3,12 +3,15 @@ import { createRoot } from 'react-dom/client';
 
 import './input.css';
 import Router from './Router.tsx';
-import { CollectionProvider } from './context/CollectionContext.tsx';
+import { CollectionsProvider } from './context/CollectionContext';
+import { UserSettingsContextProvider } from './context/UserSettingsContext';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <CollectionProvider>
-            <Router />
-        </CollectionProvider>
+        <CollectionsProvider>
+            <UserSettingsContextProvider>
+                <Router />
+            </UserSettingsContextProvider>
+        </CollectionsProvider>
     </StrictMode>
 );

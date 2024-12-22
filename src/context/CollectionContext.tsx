@@ -1,145 +1,92 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { initData } from './initData';
-import { sanitizeForUrl } from './sanitizeForUrl';
+import React, { useState, useEffect, createContext } from 'react';
 
-// Interfejs dla danych o przedmiocie
-export interface Item {
-    name: string;
-    updates: {
-        timestamp: Date;
-        absoluteAmount: number;
-        user: string;
-    }[];
-}
+import { AllCollectionsData, CollectionsContextType, SingleCollection, SingleCollectionItem } from './types';
+import { createCollection, getUpdatedItems } from './modifyCollections';
+import { getMockedCollections } from './mockedCollections';
 
-// Interfejs dla kolekcji
-export interface Collection {
-    name: string;
-    whitelist: string[];
-    items: Item[];
-}
-
-// Udostępniane metody i pola CollectionsContext
-interface CollectionsContextType {
-    collections: Collection[];
-    initCollections: () => void;
-    addItemToCollection: (collectionName: string, item: Item) => void;
-    updateItemInCollection: (collectionName: string, item: Item) => void;
-    setCollection: (collectionName: string, collection: Collection) => void;
-    getCollection: (collectionName: string) => Collection | undefined;
-    addCollection: (collectionName: string, user: string) => void;
-}
-
-const CollectionsContext = createContext<CollectionsContextType | undefined>(undefined);
+// eslint-disable-next-line react-refresh/only-export-components
+export const CollectionsContext = createContext<CollectionsContextType | undefined>(undefined);
 
 export const CollectionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [collections, setCollections] = useState<Collection[]>(() => {
-        const storedCollections = localStorage.getItem('collectionItems');
-        return storedCollections ? JSON.parse(storedCollections) : [];
-    });
+    const storedCollections = localStorage.getItem('collectionItems');
+    const storedUser = localStorage.getItem('loggedUser');
 
-    const addItemToCollection = (collectionName: string, item: Item) => {
-        setCollections((prevCollections) => {
-            const updatedCollections = prevCollections.map(collection => {
-                if (collection.name === collectionName) {
-                    const sanitizedName = sanitizeForUrl(item.name);
-                    const itemExists = collection.items.some(existingItem => sanitizeForUrl(existingItem.name) === sanitizedName);
-                    if (itemExists) {
-                        console.error(`Item with sanitized name ${sanitizedName} already exists in collection ${collectionName}.`);
-                        return collection;
-                    }
-                    return {
-                        ...collection,
-                        items: [...collection.items, item]
-                    };
-                }
-                return collection;
-            });
-            localStorage.setItem('collectionItems', JSON.stringify(updatedCollections));
-            return updatedCollections;
-        });
-    };
-
-    const updateItemInCollection = (collectionName: string, itemName: string, timestamp: Date, absoluteAmount: number, user: string) => {
-        setCollections((prevCollections) => {
-            const updatedCollections = prevCollections.map(collection => {
-                if (collection.name === collectionName) {
-                    const sanitizedName = sanitizeForUrl(itemName);
-                    const itemToUpdate = collection.items.find(item => sanitizeForUrl(item.name) === sanitizedName);
-                    if (itemToUpdate) {
-                        const newUpdate = {
-                            timestamp,
-                            absoluteAmount,
-                            user
-                        };
-                        return {
-                            ...collection,
-                            items: collection.items.map(item => 
-                                sanitizeForUrl(item.name) === sanitizedName 
-                                    ? { ...item, updates: [...item.updates, newUpdate] } 
-                                    : item
-                            )
-                        };
-                    }
-                }
-                return collection;
-            });
-            localStorage.setItem('collectionItems', JSON.stringify(updatedCollections));
-            return updatedCollections;
-        });
-    };
-
-    const setCollection = (collectionName: string, newCollection: Collection) => {
-        setCollections((prevCollections) => {
-            const updatedCollections = prevCollections.map(collection => {
-                if (collection.name === collectionName) {
-                    return newCollection;
-                }
-                return collection;
-            });
-            localStorage.setItem('collectionItems', JSON.stringify(updatedCollections));
-            return updatedCollections;
-        });
-    };
-
-    const getCollection = (collectionName: string): Collection | undefined => {
-        return collections.find(collection => collection.name === collectionName);
-    };
-
-    const addCollection = (collectionName: string, user: string) => {
-        const newCollection: Collection = {
-            name: collectionName,
-            whitelist: [user], // Twórca kolekcji jest dodany na początku w liście użytkownikóœ
-            items: []
-        };
-
-        setCollections((prevCollections) => {
-            const updatedCollections = [...prevCollections, newCollection];
-            localStorage.setItem('collectionItems', JSON.stringify(updatedCollections));
-            return updatedCollections;
-        });
-    };
-
-    const initCollections = () => {
-        localStorage.setItem('collectionItems', JSON.stringify(initData));
-        setCollections(initData);
-    };
+    const [allCollections, setAllCollections] = useState<AllCollectionsData>(storedCollections ? JSON.parse(storedCollections) : []);
+    const [currentCollectionName, setCurrentCollectionName] = useState<string>('');
+    const [loggedUser, setLoggedUser] = useState<string>(storedUser ? storedUser : '');
 
     useEffect(() => {
-        localStorage.setItem('collectionItems', JSON.stringify(collections));
-    }, [collections]);
+        localStorage.setItem('collectionItems', JSON.stringify(allCollections));
+    }, [allCollections]);
+    useEffect(() => {
+        localStorage.setItem('loggedUser', JSON.stringify(loggedUser));
+    }, [loggedUser]);
 
-    return (
-        <CollectionsContext.Provider value={{ collections, addItemToCollection, setCollection, initCollections, getCollection, addCollection, updateItemInCollection }}>
-            {children}
-        </CollectionsContext.Provider>
-    );
-};
+    const updateCollectionItems = (item: SingleCollectionItem) => {
+        setAllCollections((prevCollections) =>
+            prevCollections.map((collection) =>
+                collection.name === currentCollectionName
+                    ? {
+                          ...collection,
+                          items: getUpdatedItems(collection.items, item),
+                      }
+                    : collection
+            )
+        );
+    };
 
-export const useCollections = () => {
-    const context = useContext(CollectionsContext);
-    if (!context) {
-        throw new Error('useCollections must be used within a CollectionsProvider');
-    }
-    return context;
+    const updateCollectionOthers = (newOthers: string[]) => {
+        setAllCollections((prevCollections) =>
+            prevCollections.map((collection) =>
+                collection.name === currentCollectionName
+                    ? {
+                          ...collection,
+                          others: newOthers,
+                      }
+                    : collection
+            )
+        );
+    };
+
+    const initCollections = (username: string) => {
+        if (allCollections.length === 0) {
+            const mockedData = getMockedCollections(username);
+            setAllCollections(mockedData);
+            setCurrentCollectionName(mockedData[0].name);
+        } else {
+            const usersCollections = getUserCollections(username);
+            setCurrentCollectionName(usersCollections.length > 0 ? usersCollections[0].name : '');
+        }
+        setLoggedUser(username);
+    };
+
+    const setCollection = (collectionName: string) => {
+        const idx = allCollections.findIndex((collection) => collection.name == collectionName);
+        setCurrentCollectionName(idx === -1 ? '' : collectionName);
+    };
+    const getCollection = (): SingleCollection | undefined => {
+        if (currentCollectionName === '') {
+            return;
+        }
+        return allCollections.find((collection) => collection.name === currentCollectionName);
+    };
+
+    const addCollection = (newCollectionName: string) => {
+        const newCollection = createCollection(newCollectionName, loggedUser);
+        setAllCollections((prev) => [...prev, newCollection]);
+        setCurrentCollectionName(newCollectionName);
+    };
+
+    const getUserCollections = (username?: string): AllCollectionsData => {
+        const user = username ? username : loggedUser;
+        const userIsOwner = allCollections.filter((collection) => collection.owner === loggedUser);
+        const userIsOthers = allCollections.filter((collection) => collection.others.includes(user));
+
+        return [...userIsOthers, ...userIsOwner];
+    };
+
+    const fields = { loggedUser, allCollections, currentCollectionName };
+    const functions = { updateCollectionItems, updateCollectionOthers, getUserCollections, setCollection, initCollections, getCollection, addCollection };
+
+    return <CollectionsContext.Provider value={{ ...fields, ...functions }}>{children}</CollectionsContext.Provider>;
 };

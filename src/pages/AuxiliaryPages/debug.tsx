@@ -1,19 +1,13 @@
 import React from 'react';
-import { useCollections } from '../../context/CollectionContext';
-import { useUserSettings } from '../../context/UserSettingsContext';
+import useCollections from '../../context/useCollections';
 
 const Debug: React.FC = () => {
-    const { collections } = useCollections();
-    const { currentCollectionName, currentUsername } = useUserSettings();
+    const { allCollections, currentCollectionName, loggedUser } = useCollections();
     return (
         <div style={{ padding: '20px' }}>
             <h1>Current Collection: {currentCollectionName}</h1>
-            <h1>Current User: {currentUsername}</h1>
-            {collections ? (
-                <pre>{JSON.stringify(collections, null, 4)}</pre>
-            ) : (
-                <p>Collections not found</p>
-            )}
+            <h1>Current User: {loggedUser}</h1>
+            {allCollections ? <pre>{JSON.stringify(allCollections, null, 4)}</pre> : <p>Collections not found</p>}
         </div>
     );
 };

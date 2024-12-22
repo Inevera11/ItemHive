@@ -1,47 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useCollections } from '../context/CollectionContext';
-import { useUserSettings } from '../context/UserSettingsContext';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Item } from '../context/CollectionContext';
+import { SingleCollectionItem } from '../context/types';
+import useCollections from '../context/useCollections';
 import { sanitizeForUrl } from '../context/sanitizeForUrl';
 
 interface ItemFormProps {
-    existingItem?: Item;
+    existingItem: SingleCollectionItem;
 }
 
 const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
-    const { currentCollectionName, currentUsername } = useUserSettings();
-    const { addItemToCollection, updateItemInCollection, getCollection } = useCollections();
-    const [formData, setFormData] = useState({
-        name: '',
-        amount: '',
-        timestamp: '',
-        user: currentUsername || '', // Set default user as currentUsername
-    });
-    const [whitelist, setWhitelist] = useState<string[]>([]);
+    const { getCollection, updateCollectionItems } = useCollections();
+    const collection = getCollection();
+
+    const getDefaultValues = () => {
+        return {
+            name: existingItem.name,
+            amount: existingItem.updates[existingItem.updates.length - 1].absoluteAmount,
+            timestamp: new Date(existingItem.updates[existingItem.updates.length - 1].timestamp).toISOString().split('T')[0],
+            user: existingItem.updates[existingItem.updates.length - 1].user,
+        };
+    };
+    const [formData, setFormData] = useState(getDefaultValues());
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (existingItem) {
-            setFormData({
-                name: existingItem.name,
-                amount: existingItem.updates[existingItem.updates.length - 1].absoluteAmount.toString(),
-                timestamp: new Date(existingItem.updates[existingItem.updates.length - 1].timestamp).toISOString().split('T')[0],
-                user: existingItem.updates[existingItem.updates.length - 1].user,
-            });
-        } else {
-            // If there is no existing item, set the user to the current username
-            setFormData(prev => ({ ...prev, user: currentUsername || '' }));
-        }
-    }, [existingItem, currentUsername]);
-
-    useEffect(() => {
-        // Get the current collection's whitelist
-        const collection = getCollection(currentCollectionName);
-        if (collection) {
-            setWhitelist(collection.whitelist);
-        }
-    }, [currentCollectionName, getCollection]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -53,25 +33,19 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const collection = getCollection(currentCollectionName);
-        const sanitizedName = sanitizeForUrl(formData.name);
-        const existingItemInCollection = collection?.items.find(item => sanitizeForUrl(item.name) === sanitizedName);
-        const absoluteAmountValue = Number(formData.amount);
-        if (existingItemInCollection) {
-            updateItemInCollection(currentCollectionName, formData.name, formData.timestamp, absoluteAmountValue, formData.user);
-        } else {
-            const structuredData = {
-                name: formData.name,
-                updates: [
-                    {
-                        timestamp: formData.timestamp,
-                        absoluteAmount: absoluteAmountValue,
-                        user: formData.user,
-                    },
-                ],
-            };
-            addItemToCollection(currentCollectionName, structuredData);
-        }
+        const structuredData = {
+            ...existingItem,
+            name: formData.name,
+            url: sanitizeForUrl(formData.name),
+            updates: [
+                {
+                    timestamp: formData.timestamp,
+                    absoluteAmount: Number(formData.amount),
+                    user: formData.user,
+                },
+            ],
+        };
+        updateCollectionItems(structuredData);
         navigate('/app/display');
     };
 
@@ -91,12 +65,12 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
                 <div>
                     <label>
                         Ilość:
-                        <input type="number" name="amount" value={formData.amount} min="0" onChange={handleChange} className={inputStyle} />
+                        <input type="number" name="amount" value={formData.amount} min={0} onChange={handleChange} className={inputStyle} />
                     </label>
                 </div>
                 <div>
                     <label>
-                        Partia:
+                        Data ważności partii:
                         <input type="date" name="timestamp" value={formData.timestamp} onChange={handleChange} className={inputStyle} />
                     </label>
                 </div>
@@ -104,12 +78,18 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
                     <label>
                         Kupujący:
                         <select name="user" value={formData.user} onChange={handleChange} className={inputStyle}>
-                            <option value="">Wybierz użytkownika</option>
-                            {whitelist.map((user) => (
-                                <option key={user} value={user}>
-                                    {user}
-                                </option>
-                            ))}
+                            {collection ? (
+                                <>
+                                    {collection.others.map((user) => (
+                                        <option key={user} value={user}>
+                                            {user}
+                                        </option>
+                                    ))}
+                                    <option value={collection.owner}>{collection.owner}</option>
+                                </>
+                            ) : (
+                                <></>
+                            )}
                         </select>
                     </label>
                 </div>

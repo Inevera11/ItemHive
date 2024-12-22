@@ -2,27 +2,23 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, Title, TimeScale } from 'chart.js';
 import 'chartjs-adapter-date-fns'; // Adapter czasowy potrzebny aby traktować wartości czasowe jak inne wartości na osi
 import zoomPlugin from 'chartjs-plugin-zoom'; // Przybliżanie i przemieszczanie wykresu
-
-import { useCollections } from '../context/CollectionContext';
+import useCollections from '../context/useCollections';
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, Title, TimeScale, zoomPlugin);
 
 interface ChartProps {
-    collectionName: string;
     itemNames: string[];
 }
 
-const Chart: React.FC<ChartProps> = ({ collectionName, itemNames }) => {
+const Chart: React.FC<ChartProps> = ({ itemNames }) => {
     const { getCollection } = useCollections();
-    const collection = getCollection(collectionName);
+    const collection = getCollection();
 
     if (!collection) {
         return <p className="text-gray-500">Nie znaleziono kolekcji</p>;
     }
 
-    const items = itemNames
-        ? collection.items.filter(item => itemNames.includes(item.name)) 
-        : collection.items;
+    const items = itemNames ? collection.items.filter((item) => itemNames.includes(item.name)) : collection.items;
 
     const datasets = items.map((item, index) => {
         const hue = (index * 360) / items.length;
@@ -30,15 +26,17 @@ const Chart: React.FC<ChartProps> = ({ collectionName, itemNames }) => {
         const lightness = 50;
         let lastValidValue = null;
 
-        const pointsAtItem = item.updates.map((update) => {
-            const isoTimestamp = new Date(update.timestamp).toISOString();
-            if (update) {
-                lastValidValue = update.absoluteAmount;
-                return { x: new Date(isoTimestamp), y: update.absoluteAmount };
-            } else {
-                return lastValidValue !== null ? { x: new Date(isoTimestamp), y: lastValidValue } : null;
-            }
-        }).filter(point => point !== null);
+        const pointsAtItem = item.updates
+            .map((update) => {
+                const isoTimestamp = new Date(update.timestamp).toISOString();
+                if (update) {
+                    lastValidValue = update.absoluteAmount;
+                    return { x: new Date(isoTimestamp), y: update.absoluteAmount };
+                } else {
+                    return null ? { x: new Date(isoTimestamp), y: lastValidValue } : null;
+                }
+            })
+            .filter((point) => point !== null);
 
         return {
             label: item.name,
@@ -54,10 +52,10 @@ const Chart: React.FC<ChartProps> = ({ collectionName, itemNames }) => {
         datasets: datasets,
     };
 
-    const allTimestamps = datasets.flatMap(dataset => dataset.data.map(point => point.x));
+    const allTimestamps = datasets.flatMap((dataset) => dataset.data.map((point) => point.x));
     const minX = new Date(Math.min(...allTimestamps));
     const maxX = new Date(Math.max(...allTimestamps));
-    const maxY = Math.max(...datasets.flatMap(dataset => dataset.data.map(point => point.y)));
+    const maxY = Math.max(...datasets.flatMap((dataset) => dataset.data.map((point) => point.y)));
 
     const options = {
         responsive: true,
@@ -80,11 +78,11 @@ const Chart: React.FC<ChartProps> = ({ collectionName, itemNames }) => {
                     },
                 },
                 limits: {
-                    x : {
+                    x: {
                         min: minX,
                         max: maxX,
                     },
-                    y : {
+                    y: {
                         min: 0,
                         max: maxY,
                     },

@@ -1,35 +1,35 @@
-import React, { useState } from 'react';
-import { useCollections } from '../../context/CollectionContext';
-import { useUserSettings } from '../../context/UserSettingsContext';
+import { useState } from 'react';
 import Button from '../../components/Button/Button';
+import useCollections from '../../context/useCollections';
 
 const Edit = () => {
-    const { currentCollectionName, currentUsername } = useUserSettings();
-    const { getCollection, setCollection } = useCollections();
-    const collection = getCollection(currentCollectionName);
+    const { getCollection, currentCollectionName, updateCollectionOthers } = useCollections();
     const [newUser, setNewUser] = useState<string>('');
     const [feedbackMessage, setFeedbackMessage] = useState<string>('');
+    const collection = getCollection();
 
     const handleAddUser = () => {
-        if (newUser.trim() === '' || collection?.whitelist.includes(newUser)) {
-            setFeedbackMessage('Nazwa użytkownika musi być niepusta i nie może być dodana wielokrotnie');
+        if (!collection) {
+            setFeedbackMessage('Wystąpił błąd. Spróbuj ponownie później');
             return;
         }
-        const updatedCollection = {
-            ...collection,
-            whitelist: [...collection.whitelist, newUser]
-        };
-        setCollection(currentCollectionName, updatedCollection);
+        if (newUser.trim() === '' || collection.others.includes(newUser)) {
+            setFeedbackMessage('Nazwa użytkownika musi być unikalna i nie pusta');
+            return;
+        }
+        const newOthers = [...collection.others, newUser];
+        updateCollectionOthers(newOthers);
         setNewUser('');
         setFeedbackMessage('Użytkownik został dodany pomyślnie!');
     };
 
     const handleRemoveUser = (userToRemove: string) => {
-        const updatedCollection = {
-            ...collection,
-            whitelist: collection.whitelist.filter(user => user !== userToRemove)
-        };
-        setCollection(currentCollectionName, updatedCollection);
+        if (!collection) {
+            setFeedbackMessage('Wystąpił błąd. Spróbuj ponownie później');
+            return;
+        }
+        const newOthers = collection.others.filter((user) => user !== userToRemove);
+        updateCollectionOthers(newOthers);
         setFeedbackMessage('Użytkownik został usunięty pomyślnie!');
     };
 
@@ -40,24 +40,19 @@ const Edit = () => {
                 <div className="grid grid-cols-3 pl-10 gap-4 grid-rows-8 ">
                     <p className="col-start-1">Uczestnicy:</p>
                     <div className="col-start-2">
-                        {collection.whitelist.map((user) => (
+                        <div className="flex justify-between items-center">
+                            <p>{collection.owner}</p>
+                            <p>Właściciel</p>
+                        </div>
+                        {collection.others.map((user) => (
                             <div key={user} className="flex justify-between items-center">
                                 <p>{user}</p>
-                                {user === currentUsername ? (
-                                    <span>(Wy)</span>
-                                ) : (
-                                    <Button onClick={() => handleRemoveUser(user)}>Usuń</Button>
-                                )}
+                                <Button onClick={() => handleRemoveUser(user)}>Usuń</Button>
                             </div>
                         ))}
                     </div>
                     <div className="col-start-2">
-                        <input 
-                            className="bg-yellow-300" 
-                            value={newUser} 
-                            onChange={(e) => setNewUser(e.target.value)}
-                            placeholder="Dodaj użytkownika"
-                        />
+                        <input className="bg-yellow-300" value={newUser} onChange={(e) => setNewUser(e.target.value)} placeholder="Dodaj użytkownika" />
                         <Button onClick={handleAddUser}>Dodaj</Button>
                     </div>
                     <p className="text-center col-start 3">{feedbackMessage}</p>

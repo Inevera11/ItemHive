@@ -1,55 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Button from '../../components/Button/Button';
-import { useUserSettings } from '../../context/UserSettingsContext';
-import { useCollections } from '../../context/CollectionContext';
+import useCollections from '../../context/useCollections';
 
 const SwitchCollection = () => {
-    const { currentCollectionName, setCurrentCollectionName, currentUsername } = useUserSettings();
-    const { collections, addCollection } = useCollections();
+    const { getUserCollections, currentCollectionName, setCollection, addCollection } = useCollections();
     const [selectedCollection, setSelectedCollection] = useState<string>(currentCollectionName || '');
     const [newCollectionName, setNewCollectionName] = useState<string>('');
-    useEffect(() => {
-        setSelectedCollection(currentCollectionName);
-    }, [currentCollectionName]);
+
     const handleCollectionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedCollection(event.target.value);
     };
     const handleSwitchCollection = () => {
-        setCurrentCollectionName(selectedCollection);
+        setCollection(selectedCollection);
     };
     const handleCreateCollection = () => {
         if (newCollectionName.trim() === '') {
             alert('Nazwa kolekcji musi być niepusta');
             return;
         }
-        if (currentUsername.trim() === '') {
-            alert('Nazwa użytkownika musi być niepusta');
-            return;
-        }
-        addCollection(newCollectionName.trim(), currentUsername);
+        addCollection(newCollectionName);
+        setSelectedCollection(newCollectionName);
         setNewCollectionName('');
     };
-    const filteredCollections = collections.filter(collection => 
-        collection.whitelist.includes(currentUsername)
-    );
+    const userCollections = getUserCollections();
     return (
         <div className="h-screen pt-10">
-            <h1 className="text-center">
-                {currentCollectionName 
-                    ? `Aktualnie oglądasz kolekcję: ${currentCollectionName}` 
-                    : "Aktualnie nie wybrano kolekcji"}
-            </h1>
-            <div className="flex items-end flex-col pr-[30%] gap-10 mt-10">
+            <h1 className="text-center">{currentCollectionName ? `Aktualnie oglądasz kolekcję: ${currentCollectionName}` : 'Nie wybrano kolekcji'}</h1>
+            <div className="flex items-end flex-col pr-[10%] gap-10 mt-10">
                 <label className="flex gap-10">
                     Zmień aktualnie oglądaną kolekcję:
-                    {filteredCollections.length > 0 ? (
-                        <select 
-                            className="bg-yellow-300" 
-                            value={selectedCollection} 
-                            onChange={handleCollectionChange}
-                        >
-                            <option value="" disabled>Select a collection</option>
-                            {filteredCollections.map((collection) => (
+                    {userCollections.length > 0 ? (
+                        <select className="bg-yellow-300" value={selectedCollection} onChange={handleCollectionChange}>
+                            <option value="" disabled>
+                                Select a collection
+                            </option>
+                            {userCollections.map((collection) => (
                                 <option key={collection.name} value={collection.name}>
                                     {collection.name}
                                 </option>
@@ -59,16 +44,10 @@ const SwitchCollection = () => {
                         <span className="text-red-500">Brak dostępnych kolekcji do zmiany.</span>
                     )}
                 </label>
-                {filteredCollections.length > 0 && (
-                    <Button onClick={handleSwitchCollection}>Zmień</Button>
-                )}
+                {userCollections.length > 0 && <Button onClick={handleSwitchCollection}>Zatwierdź zmianę kolekcji</Button>}
                 <label className="flex gap-10">
                     Utwórz nową kolekcję:
-                    <input 
-                        className="bg-yellow-300" 
-                        value={newCollectionName} 
-                        onChange={(e) => setNewCollectionName(e.target.value)}
-                    />
+                    <input className="bg-yellow-300" value={newCollectionName} onChange={(e) => setNewCollectionName(e.target.value)} />
                     <Button onClick={handleCreateCollection}>Utwórz</Button>
                 </label>
             </div>

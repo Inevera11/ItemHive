@@ -1,14 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useUserSettings } from '../context/UserSettingsContext';
+import useCollections from '../context/useCollections';
 
 const Sidebar: React.FC = () => {
-    const { currentUsername, setCurrentUsername, setCurrentCollectionName } = useUserSettings();
-
-    const handleLogout = () => {
-        setCurrentUsername(false);
-        setCurrentCollectionName(false);
-    };
+    const { loggedUser } = useCollections();
 
     const navStyle = 'bg-yellow-200 border-solid border-2 border-orange-500 px-2 py-1 my-1 rounded-md active:bg-red-200';
 
@@ -32,12 +27,8 @@ const Sidebar: React.FC = () => {
                 <NavLink className={navStyle} to="switch-collection">
                     Przełącz kolekcję
                 </NavLink>
-                <NavLink className={navStyle} to="/" onClick={handleLogout}>
-                    Wyloguj mnie (
-                    <span className="text-red-400">
-                        {currentUsername ? currentUsername : 'niezalogowany'}
-                    </span>
-                    )
+                <NavLink className={navStyle} to="/">
+                    Wyloguj użytkownika (<span className="text-red-400">{loggedUser ? loggedUser : ' niezalogowany'}</span>)
                 </NavLink>
             </div>
         </nav>

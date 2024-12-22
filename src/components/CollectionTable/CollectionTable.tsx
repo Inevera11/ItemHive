@@ -1,9 +1,9 @@
-import { Item } from '../../context/CollectionContext';
 import { headers } from './headers';
 import { Link } from 'react-router-dom';
-import { sanitizeForUrl } from '../../context/sanitizeForUrl';
+import { SingleCollectionItem } from '../../context/types';
+import { sortDates } from './sortDates';
 
-const CollectionTable = ({ items }: { items: Item[] }) => {
+const CollectionTable = ({ items }: { items: SingleCollectionItem[] }) => {
     return (
         <table className="w-full">
             <thead className="bg-yellow-300">
@@ -14,22 +14,20 @@ const CollectionTable = ({ items }: { items: Item[] }) => {
                 </tr>
             </thead>
             <tbody>
-                {items.map((item, index) => {
-                    // Wyświetlany jest stan według ostatniej aktualizacji, osoba aktualizująca z ostatniej aktualizacji
-                    item.updates.sort((a, b) => b.timestamp - a.timestamp);
-                    const newestUpdate = item.updates[item.updates.length - 1];
-                    const sanitizedName = sanitizeForUrl(item.name);
+                {items.map((item) => {
+                    item.updates.sort((a, b) => sortDates(a.timestamp, b.timestamp));
+                    const newestUpdate = item.updates.length > 0 ? item.updates[item.updates.length - 1] : { absoluteAmount: '-', timestamp: '-', user: '-' };
                     return (
-                        <tr key={index + sanitizedName} className="odd:bg-yellow-200 even:bg-yellow-100 text-center">
+                        <tr key={item.id} className="odd:bg-yellow-200 even:bg-yellow-100 text-center">
                             <td>{item.name}</td>
                             <td>{newestUpdate.absoluteAmount}</td>
                             <td>{new Date(newestUpdate.timestamp).toLocaleDateString()}</td>
                             <td>{newestUpdate.user}</td>
                             <td className="flex gap-2 justify-center">
-                                <Link to={`../edit/${sanitizedName}`} className="text-orange-400">
+                                <Link to={`../edit/${item.url}`} className="text-orange-400">
                                     Edytuj
                                 </Link>
-                                <Link to={`../statistics/${sanitizedName}`} className="text-red-400">
+                                <Link to={`../statistics/${item.url}`} className="text-red-400">
                                     Statystyki
                                 </Link>
                             </td>

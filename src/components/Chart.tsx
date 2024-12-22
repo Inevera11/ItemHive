@@ -1,35 +1,45 @@
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, Title } from 'chart.js';
+import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, Title, TimeScale } from 'chart.js';
+import 'chartjs-adapter-date-fns'; // Adapter czasowy potrzebny aby traktować wartości czasowe jak inne wartości na osi
+import zoomPlugin from 'chartjs-plugin-zoom'; // Przybliżanie i przemieszczanie wykresu
+import useCollections from '../context/useCollections';
 
-import { useCollection } from '../context/CollectionContext';
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, Title, TimeScale, zoomPlugin);
 
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, Title);
+interface ChartProps {
+    itemNames: string[];
+}
 
-const Chart: React.FC = () => {
-    const { items } = useCollection();
-    const uniqueTimestamps = new Set();
-    items.forEach((item) => {
-        item.updates.forEach((update) => {
-            uniqueTimestamps.add(update.timestamp);
-        });
-    });
-    const sortedUniqueTimestamps = Array.from(uniqueTimestamps).sort();
+const Chart: React.FC<ChartProps> = ({ itemNames }) => {
+    const { getCollection } = useCollections();
+    const collection = getCollection();
+
+    if (!collection) {
+        return <p className="text-gray-500">Nie znaleziono kolekcji</p>;
+    }
+
+    const items = itemNames ? collection.items.filter((item) => itemNames.includes(item.name)) : collection.items;
+
     const datasets = items.map((item, index) => {
         const hue = (index * 360) / items.length;
         const saturation = 100;
         const lightness = 50;
         let lastValidValue = null;
-        const pointsAtItem = sortedUniqueTimestamps.map((timestamp) => {
-            const update = item.updates.find((update) => update.timestamp === new Date(timestamp).getTime());
-            if (update) {
-                lastValidValue = update.absoluteAmount;
-                return update.absoluteAmount;
-            } else {
-                return lastValidValue;
-            }
-        });
+
+        const pointsAtItem = item.updates
+            .map((update) => {
+                const isoTimestamp = new Date(update.timestamp).toISOString();
+                if (update) {
+                    lastValidValue = update.absoluteAmount;
+                    return { x: new Date(isoTimestamp), y: update.absoluteAmount };
+                } else {
+                    return null ? { x: new Date(isoTimestamp), y: lastValidValue } : null;
+                }
+            })
+            .filter((point) => point !== null);
+
         return {
-            label: item.identifier,
+            label: item.name,
             data: pointsAtItem,
             borderColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
             backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%, 0.5)`,
@@ -37,10 +47,16 @@ const Chart: React.FC = () => {
             fill: true,
         };
     });
+
     const chartData = {
-        labels: sortedUniqueTimestamps.map((uniqueTimestamp) => new Date(uniqueTimestamp).toLocaleDateString()),
         datasets: datasets,
     };
+
+    const allTimestamps = datasets.flatMap((dataset) => dataset.data.map((point) => point.x));
+    const minX = new Date(Math.min(...allTimestamps));
+    const maxX = new Date(Math.max(...allTimestamps));
+    const maxY = Math.max(...datasets.flatMap((dataset) => dataset.data.map((point) => point.y)));
+
     const options = {
         responsive: true,
         plugins: {
@@ -49,24 +65,55 @@ const Chart: React.FC = () => {
             },
             title: {
                 display: true,
-                text: 'Wykres ilości/liczby przedmiotów różnych rodzajów w zależności od czasu',
+                text: 'Wykres ilości/liczby przedmiotów w zależności od czasu',
+            },
+            zoom: {
+                pan: {
+                    enabled: true,
+                    mode: 'x',
+                },
+                zoom: {
+                    wheel: {
+                        enabled: true,
+                    },
+                },
+                limits: {
+                    x: {
+                        min: minX,
+                        max: maxX,
+                    },
+                    y: {
+                        min: 0,
+                        max: maxY,
+                    },
+                },
             },
         },
         scales: {
             x: {
+                type: 'time',
+                time: {
+                    unit: 'day', // Inne możliwości: 'day', 'month', 'year'
+                },
                 title: {
                     display: true,
-                    text: 'Timestamp',
+                    text: 'Czas',
                 },
+                min: minX,
+                max: maxX,
+                bounds: 'ticks',
             },
             y: {
                 title: {
                     display: true,
                     text: 'Ilość/liczba',
                 },
+                min: 0,
+                bounds: 'data',
             },
         },
     };
+
     return <Line data={chartData} options={options} />;
 };
 

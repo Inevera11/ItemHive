@@ -1,1 +1,1 @@
-export const headers = ['Przedmiot', 'Ilość', 'Partia', 'Kupujący', 'Akcje'];
+export const headers = ['Przedmiot', 'Ilość', 'Data ważności partii', 'Kupujący', 'Akcje'];

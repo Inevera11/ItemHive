@@ -7,9 +7,11 @@ import App from './pages/AppPages/app';
 import Display from './pages/AppPages/display';
 import Edit from './pages/AppPages/edit';
 import EditItem from './pages/AppPages/editItem';
-import EditUsers from './pages/AppPages/editUsers';
-import Statistics from './components/Chart';
+import StatisticsOne from './pages/AppPages/statisticsOne';
+import StatisticsMany from './pages/AppPages/statisticsMany';
 import SwitchCollection from './pages/AppPages/switchCollection';
+import Debug from './pages/AuxiliaryPages/debug';
+import NotFound from './pages/AuxiliaryPages/notFound';
 
 const Router = () => {
     return (
@@ -21,12 +23,14 @@ const Router = () => {
                 <Route path="app" element={<App />}>
                     <Route path="main" element={<Main />} />
                     <Route path="display" element={<Display />} />
-                    <Route path="statistics/:item" element={<Statistics />} />
+                    <Route path="statistics/:item" element={<StatisticsOne />} />
+                    <Route path="statistics" element={<StatisticsMany />} />
                     <Route path="edit" element={<Edit />} />
                     <Route path="edit/:item" element={<EditItem />} />
-                    <Route path="edit/users" element={<EditUsers />} />
                     <Route path="switch-collection" element={<SwitchCollection />} />
                 </Route>
+                <Route path="debug" element={<Debug />} />
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>
     );

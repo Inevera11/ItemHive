@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
-import { useCollection } from '../context/CollectionContext'; // Przechowuje dane w localstorage i pozwala dodawać nowe dane przez addItem
+import { useNavigate } from 'react-router-dom';
+import { SingleCollectionItem } from '../context/types';
+import useCollections from '../context/useCollections';
+import { sanitizeForUrl } from '../context/sanitizeForUrl';
 
-// Dodawanie nowych przedmiotów (możnaby zmienić ten komponent aby mógł wyświetlać dane o istniejących przedmiotach)
+interface ItemFormProps {
+    existingItem: SingleCollectionItem;
+}
 
-const ItemForm: React.FC = () => {
-    const { addItem } = useCollection();
-    const [formData, setFormData] = useState({
-        name: '',
-        amount: '',
-        timestamp: '',
-        user: '',
-    });
+const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
+    const { getCollection, updateCollectionItems } = useCollections();
+    const collection = getCollection();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const getDefaultValues = () => {
+        return {
+            name: existingItem.name,
+            amount: existingItem.updates[existingItem.updates.length - 1].absoluteAmount,
+            timestamp: new Date(existingItem.updates[existingItem.updates.length - 1].timestamp).toISOString().split('T')[0],
+            user: existingItem.updates[existingItem.updates.length - 1].user,
+        };
+    };
+    const [formData, setFormData] = useState(getDefaultValues());
+    const navigate = useNavigate();
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
@@ -22,51 +33,71 @@ const ItemForm: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const timestampInMillis = new Date(formData.timestamp).getTime();
         const structuredData = {
-            identifier: formData.name.replace(/\s+/g, ''),
+            ...existingItem,
             name: formData.name,
+            url: sanitizeForUrl(formData.name),
             updates: [
                 {
-                    timestamp: timestampInMillis,
+                    timestamp: formData.timestamp,
                     absoluteAmount: Number(formData.amount),
                     user: formData.user,
                 },
             ],
         };
-        addItem(structuredData);
+        updateCollectionItems(structuredData);
+        navigate('/app/display');
     };
 
+    const inputStyle = 'border bg-yellow-200 rounded-lg px-3 py-2 my-2 w-full';
+    const buttonStyle = 'text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200';
+    const containerStyle = 'flex justify-center items-center mt-10';
+
     return (
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label>
-                    Nazwa przedmiotu:
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Ilość:
-                    <input type="number" name="amount" value={formData.amount} onChange={handleChange} />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Partia:
-                    <input type="date" name="timestamp" value={formData.timestamp} onChange={handleChange} />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Kupujący:
-                    <input type="text" name="user" value={formData.user} onChange={handleChange} />
-                </label>
-            </div>
-            <button type="submit" className="text-orange-400">
-                Dodaj
-            </button>
-        </form>
+        <div className={containerStyle}>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>
+                        Nazwa przedmiotu:
+                        <input type="text" name="name" value={formData.name} onChange={handleChange} className={inputStyle} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Ilość:
+                        <input type="number" name="amount" value={formData.amount} min={0} onChange={handleChange} className={inputStyle} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Data ważności partii:
+                        <input type="date" name="timestamp" value={formData.timestamp} onChange={handleChange} className={inputStyle} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Kupujący:
+                        <select name="user" value={formData.user} onChange={handleChange} className={inputStyle}>
+                            {collection ? (
+                                <>
+                                    {collection.others.map((user) => (
+                                        <option key={user} value={user}>
+                                            {user}
+                                        </option>
+                                    ))}
+                                    <option value={collection.owner}>{collection.owner}</option>
+                                </>
+                            ) : (
+                                <></>
+                            )}
+                        </select>
+                    </label>
+                </div>
+                <button type="submit" className={buttonStyle}>
+                    Dodaj
+                </button>
+            </form>
+        </div>
     );
 };
 

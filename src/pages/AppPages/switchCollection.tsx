@@ -24,32 +24,38 @@ const SwitchCollection = () => {
     };
     const userCollections = getUserCollections();
     return (
-        <div className="h-screen pt-10">
-            <h1 className="text-center">{currentCollectionName ? `Aktualnie oglądasz kolekcję: ${currentCollectionName}` : 'Nie wybrano kolekcji'}</h1>
-            <div className="flex items-end flex-col pr-[10%] gap-10 mt-10">
-                <label className="flex gap-10">
+        <div className="h-screen flex items-center justify-center">
+            <div className="w-full max-w-3xl bg-white shadow-md rounded-lg p-8">
+                <h1 className="text-2xl font-bold text-gray-900 mb-8 text-center">{currentCollectionName ? `Aktualnie oglądasz kolekcję: ${currentCollectionName}` : 'Nie wybrano kolekcji'}</h1>
+                <h2 className="text-lg font-semibold mb-6 text-center">
                     Zmień aktualnie oglądaną kolekcję:
+                </h2>
                     {userCollections.length > 0 ? (
-                        <select className="bg-yellow-300" value={selectedCollection} onChange={handleCollectionChange}>
-                            <option value="" disabled>
-                                Select a collection
-                            </option>
-                            {userCollections.map((collection) => (
-                                <option key={collection.name} value={collection.name}>
-                                    {collection.name}
+                        <div className="flex flex-col items-center gap-4">
+                            <select className="border bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400" value={selectedCollection} onChange={handleCollectionChange}>
+                                <option value="" disabled>
+                                    Select a collection
                                 </option>
-                            ))}
-                        </select>
+                                {userCollections.map((collection) => (
+                                    <option key={collection.name} value={collection.name}>
+                                        {collection.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <Button onClick={handleSwitchCollection} className="flex items-center gap-2"><i className="fas fa-check"></i>Zatwierdź zmianę kolekcji</Button>
+                        </div>
                     ) : (
-                        <span className="text-red-500">Brak dostępnych kolekcji do zmiany.</span>
+                        <p className="text-red-500 text-center">Brak dostępnych kolekcji do zmiany.</p>
                     )}
-                </label>
-                {userCollections.length > 0 && <Button onClick={handleSwitchCollection}>Zatwierdź zmianę kolekcji</Button>}
-                <label className="flex gap-10">
-                    Utwórz nową kolekcję:
-                    <input className="bg-yellow-300" value={newCollectionName} onChange={(e) => setNewCollectionName(e.target.value)} />
-                    <Button onClick={handleCreateCollection}>Utwórz</Button>
-                </label>
+                <div className="mt-10">
+                    <h2 className="text-lg font-semibold mb-6 text-center">
+                        Utwórz nową kolekcję:
+                    </h2>
+                    <div className="flex flex-col items-center gap-4">
+                        <input className="border bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-yellow-400" value={newCollectionName} onChange={(e) => setNewCollectionName(e.target.value)} />
+                        <Button onClick={handleCreateCollection}>Utwórz</Button>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -54,17 +54,24 @@ const Display = () => {
                         <p>Dostosuj użyte filtry lub dodaj nowe przedmioty.</p>
                     </div>
                 )}
-                <div className="self-end flex gap-10">
+                <div className="self-end flex gap-4 mt-6">
                     <Button>
-                        <Link to="../edit/new">Dodaj przedmiot</Link>
+                        <Link to="../edit/new">
+                            <i className="fas fa-plus mr-2"></i>
+                            Dodaj przedmiot
+                        </Link>
                     </Button>
                     <Button
                         onClick={() => {
                             setFilteredItems(initFilteredItems());
                         }}>
+                        <i className="fas fa-broom mr-2"></i>
                         Wyczyść filtry
                     </Button>
-                    <Button onClick={() => setIsModalOpen(true)}>Filtruj</Button>
+                    <Button onClick={() => setIsModalOpen(true)}>
+                        <i className="fas fa-filter mr-2"></i>
+                        Filtruj
+                    </Button>
                 </div>
             </div>
             <FilterModal isOpen={isModalOpen} onApply={handleApplyFilters} whitelist={getWhiteList()} />

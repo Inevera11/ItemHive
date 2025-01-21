@@ -3,14 +3,17 @@ import { NavLink } from 'react-router-dom';
 import useCollections from '../context/useCollections';
 
 const Sidebar: React.FC = () => {
-    const { loggedUser } = useCollections();
+    const { loggedUser, currentCollectionName } = useCollections();
 
-    const navStyle = 'flex items-center gap-3 px4 py-2 bg-yellow-200 text-black hover:bg-yellow-100 transition';
+    const navStyle = 'flex items-center gap-3 px-4 py-2 bg-yellow-200 text-black hover:bg-yellow-100 transition rounded shadow-lg';
 
     return (
-        <nav className="h-screen w-64 bg-yellow-200 flex flex-col justify-between py-6">
+        <nav className="h-screen w-64 bg-yellow-200 flex flex-col justify-between py-6 rounded shadow-inner">
             <div className="px-4">
-                <h1 className="text-2xl font-bold text-orange-600 mb-8">ItemHive</h1>
+                <NavLink to="main" className="grid grid-flow-col items-center m-4">
+                    <img src="/logo.svg" className="h-10" />
+                    <h1 className="text-2xl font-bold text-orange-600 mb-0">ItemHive</h1>
+                </NavLink>
                 <div className="flex flex-col gap-4">
                     <NavLink className={navStyle} to="main">
                         <i className="fas fa-home text-orange-500"></i>
@@ -31,18 +34,29 @@ const Sidebar: React.FC = () => {
                 </div>
             </div>
             <div className="px-4">
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-4">
                     <NavLink className={navStyle} to="switch-collection">
-                        <i className="fas fa-exchange-alt text-orange-500"></i>
-                        Przełącz kolekcję
+                        <div className="flex flex-col">
+                            <p>
+                                <i className="fas fa-exchange-alt text-orange-500"></i>
+                                Przełącz kolekcję
+                            </p>
+                            <span className="mt-1 text-sm text-gray-600">
+                                Obecnie: <span className="text-orange-600">{currentCollectionName ? currentCollectionName : ' brak'}</span>
+                            </span>
+                        </div>
                     </NavLink>
                     <NavLink className={navStyle} to="/">
-                        <i className="fas fa-sign-out-alt text-red-500"></i>
-                        Wyloguj użytkownika
+                        <div className="flex flex-col">
+                            <p>
+                                <i className="fas fa-sign-out-alt text-red-500"></i>
+                                Wyloguj użytkownika
+                            </p>
+                            <span className="mt-1 text-sm text-gray-600">
+                                Obecnie: <span className="text-red-500">{loggedUser ? loggedUser : ' niezalogowany'}</span>
+                            </span>
+                        </div>
                     </NavLink>
-                </div>
-                <div className="mt-6 text-sm text-gray-600">
-                    Zalogowany jako: (<span className="text-orange-600">{loggedUser ? loggedUser : ' niezalogowany'}</span>)  
                 </div>
             </div>
         </nav>

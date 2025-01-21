@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { SingleCollectionItem } from '../context/types';
 import useCollections from '../context/useCollections';
 import { sanitizeForUrl } from '../context/sanitizeForUrl';
+import ErrorModal from './ErrorModal';
 
 interface ItemFormProps {
     existingItem: SingleCollectionItem;
@@ -21,6 +22,8 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
         };
     };
     const [formData, setFormData] = useState(getDefaultValues());
+    const [modalVisible, setModalVisible] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -33,6 +36,17 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!formData.name.trim()) {
+            setErrorMessage('Nazwa przedmiotu nie może być pusta.');
+            setModalVisible(true);
+            return;
+        }
+        const date = new Date(formData.timestamp);
+        if (isNaN(date.getTime())) {
+            setErrorMessage('Data ważności partii jest nieprawidłowa.');
+            setModalVisible(true);
+            return;
+        }
         const structuredData = {
             ...existingItem,
             name: formData.name,
@@ -47,6 +61,11 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
         };
         updateCollectionItems(structuredData);
         navigate('/app/display');
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+        setErrorMessage('');
     };
 
     const inputStyle = 'border border-yellow-300 bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 my-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400 transition duration-200';
@@ -97,6 +116,9 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
                     Dodaj
                 </button>
             </form>
+            {modalVisible && (
+                <ErrorModal errorName="Podano błędne dane" errorMessage={errorMessage} onClose={closeModal} />
+            )}
         </div>
     );
 };

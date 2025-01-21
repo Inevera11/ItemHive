@@ -13,5 +13,5 @@ const formatDate = (isoString: string): string => {
 };
 
 export const sortDates = (a: string, b: string) => {
-    return new Date(formatDate(b)).getTime() - new Date(formatDate(a)).getTime();
+    return new Date(formatDate(a)).getTime() - new Date(formatDate(b)).getTime();
 };

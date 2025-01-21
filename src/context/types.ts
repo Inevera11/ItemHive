@@ -29,4 +29,5 @@ export type CollectionsContextType = {
     getCollection: () => SingleCollection | undefined;
     addCollection: (newCollectionName: string) => void;
     updateCollectionOthers: (newOthers: string[]) => void;
+    removeCollectionItem: (itemId: string) => void;
 };

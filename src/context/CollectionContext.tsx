@@ -10,17 +10,21 @@ export const CollectionsContext = createContext<CollectionsContextType | undefin
 export const CollectionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const storedCollections = localStorage.getItem('collectionItems');
     const storedUser = localStorage.getItem('loggedUser');
+    const storedCurrentCollectionName = localStorage.getItem('currentCollectionName');
 
     const [allCollections, setAllCollections] = useState<AllCollectionsData>(storedCollections ? JSON.parse(storedCollections) : []);
-    const [currentCollectionName, setCurrentCollectionName] = useState<string>('');
+    const [currentCollectionName, setCurrentCollectionName] = useState<string>(storedCurrentCollectionName ? storedCurrentCollectionName : '');
     const [loggedUser, setLoggedUser] = useState<string>(storedUser ? storedUser : '');
 
     useEffect(() => {
         localStorage.setItem('collectionItems', JSON.stringify(allCollections));
     }, [allCollections]);
     useEffect(() => {
-        localStorage.setItem('loggedUser', JSON.stringify(loggedUser));
+        localStorage.setItem('loggedUser', loggedUser);
     }, [loggedUser]);
+    useEffect(() => {
+        localStorage.setItem('currentCollectionName', currentCollectionName);
+    }, [currentCollectionName]);
 
     const updateCollectionItems = (item: SingleCollectionItem) => {
         setAllCollections((prevCollections) =>
@@ -29,6 +33,19 @@ export const CollectionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
                     ? {
                           ...collection,
                           items: getUpdatedItems(collection.items, item),
+                      }
+                    : collection
+            )
+        );
+    };
+
+    const removeCollectionItem = (itemName: string) => {
+        setAllCollections((prevCollections) =>
+            prevCollections.map((collection) =>
+                collection.name === currentCollectionName
+                    ? {
+                          ...collection,
+                          items: collection.items.filter((item) => item.name !== itemName && item.url !== itemName),
                       }
                     : collection
             )
@@ -85,8 +102,22 @@ export const CollectionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return [...userIsOthers, ...userIsOwner];
     };
 
-    const fields = { loggedUser, allCollections, currentCollectionName };
-    const functions = { updateCollectionItems, updateCollectionOthers, getUserCollections, setCollection, initCollections, getCollection, addCollection };
+    const fields = {
+        loggedUser,
+        allCollections,
+        currentCollectionName
+    };
+
+    const functions = {
+        updateCollectionItems,
+        updateCollectionOthers,
+        getUserCollections,
+        setCollection,
+        initCollections,
+        getCollection,
+        addCollection,
+        removeCollectionItem,
+    };
 
     return <CollectionsContext.Provider value={{ ...fields, ...functions }}>{children}</CollectionsContext.Provider>;
 };

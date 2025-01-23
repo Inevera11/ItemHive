@@ -20,9 +20,11 @@ const EditItem = () => {
     const existingItem: SingleCollectionItem = collection && item !== 'new' ? collection.items.find((el) => el.url === item) || initItem() : initItem();
 
     return (
-        <div>
-            <div className="flex flex-col items-center mt-10 text-lg">{item !== 'new' ? <p>Edycja przedmiotu {existingItem.name}</p> : <p>Dodawanie nowego przedmiotu</p>}</div>
-            <NewItem existingItem={existingItem} />
+        <div className="flex flex-col items-center">
+            <div className="w-2xl bg-white shadow-md rounded-lg p-8 mt-8">
+                {item !== 'new' ? <h1 className="text-2xl font-bold text-gray-900 mb-8 text-center">Edycja przedmiotu {existingItem.name}</h1> : <h1 className="text-2xl font-bold text-gray-900 mb-8 text-center">Dodawanie nowego przedmiotu</h1>}
+                <NewItem existingItem={existingItem} />
+            </div>
         </div>
     );
 };

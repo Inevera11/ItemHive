@@ -24,8 +24,8 @@ const SwitchCollection = () => {
     };
     const userCollections = getUserCollections();
     return (
-        <div className="h-screen flex items-center justify-center">
-            <div className="w-full max-w-3xl bg-white shadow-md rounded-lg p-8">
+        <div className="flex flex-col items-center">
+            <div className="w-[80%] bg-white shadow-md rounded-lg p-8 mt-8">
                 <h1 className="text-2xl font-bold text-gray-900 mb-8 text-center">{currentCollectionName ? `Aktualnie oglądasz kolekcję: ${currentCollectionName}` : 'Nie wybrano kolekcji'}</h1>
                 <h2 className="text-lg font-semibold mb-6 text-center">
                     Zmień aktualnie oglądaną kolekcję:

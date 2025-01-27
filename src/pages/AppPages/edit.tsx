@@ -75,7 +75,7 @@ const Edit = () => {
                     <div>
                         <h2 className="text-lg font-semibold mb-4">Dodaj użytkownika:</h2>
                         <div className="flex items-center gap-4">
-                            <input className="border bg-yellow-200 focus:bg-yellow-200 px-3 py-2 w-full focus-outline-none focus-ring-2 focus:ring-yellow-400 transition duration-200 rounded-lg" value={newUser} onChange={(e) => setNewUser(e.target.value)} placeholder="Dodaj użytkownika" />
+                            <input className="border border-yellow-300 bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 my-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400 transition duration-200" value={newUser} onChange={(e) => setNewUser(e.target.value)} placeholder="Dodaj użytkownika" />
                             <Button onClick={handleAddUser} className="text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 font-medium rounded-lg px-5 py-2.5 transition duration-200">Dodaj</Button>
                         </div>
                     </div>

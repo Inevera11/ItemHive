@@ -45,6 +45,8 @@ const Login = () => {
         setEmail('');
     };
 
+    const inputStyle = 'border border-yellow-300 bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 my-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400 transition duration-200';
+
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-yellow-100 via-yellow-300 to-yellow-100 items-center gap-5 pt-20">
             <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-8 transform -translate-y-6">
@@ -52,11 +54,11 @@ const Login = () => {
                     Zaloguj się</h1>
                 <label className="flex flex-col mb-4">
                     Nazwa użytkownika
-                    <input className="bg-yellow-300 rounded-lg p-2" value={username} onChange={(e) => setUsername(e.target.value)} />
+                    <input className={inputStyle} value={username} onChange={(e) => setUsername(e.target.value)} />
                 </label>
                 <label className="flex flex-col mb-6">
                     Hasło
-                    <input className="bg-yellow-300 rounded-lg p-2" type="password" />
+                    <input className={inputStyle} type="password" />
                 </label>
                 <div className="flex flex-col gap-4 items-center">
                     <Button onClick={handleLogin} className={"w-64 py-2 px-4 rounded-lg p-2"}>
@@ -73,7 +75,7 @@ const Login = () => {
                         <label className="flex flex-col gap-1 w-full">
                             Adres email
                             <input 
-                                className="bg-yellow-300 mb-6 rounded-lg p-2" 
+                                className={inputStyle}
                                 value={email} 
                                 onChange={(e) => setEmail(e.target.value)}
                             />

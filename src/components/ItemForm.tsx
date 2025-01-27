@@ -63,6 +63,10 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
         navigate('/app/display');
     };
 
+    const handleCancel = () => {
+        navigate('/app/display');
+    };
+
     const closeModal = () => {
         setModalVisible(false);
         setErrorMessage('');
@@ -112,9 +116,14 @@ const ItemForm: React.FC<ItemFormProps> = ({ existingItem }) => {
                         </select>
                     </label>
                 </div>
-                <button type="submit" className={buttonStyle}>
-                    Dodaj
-                </button>
+                <div className="flex gap-x-4">
+                    <button type="button" onClick={handleCancel} className={buttonStyle}>
+                        Anuluj
+                    </button>
+                    <button type="submit" className={buttonStyle}>
+                        Dodaj
+                    </button>
+                </div>
             </form>
             {modalVisible && (
                 <ErrorModal errorName="Podano błędne dane" errorMessage={errorMessage} onClose={closeModal} />

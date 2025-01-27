@@ -15,8 +15,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, message, 
             <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-lg font-semibold mb-4">{message}</h2>
                 <div className="flex justify-end space-x-4">
-                    <button onClick={onCancel} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">Nie</button>
-                    <button onClick={onConfirm} className="bg-red-500 text-white px-4 py-2 rounded-lg">Tak</button>
+                    <button onClick={onCancel} className="text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-md text-sm px-5 py-2.5 transition duration-200">Nie</button>
+                    <button onClick={onConfirm} className="text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-md text-sm px-5 py-2.5 transition duration-200">Tak</button>
                 </div>
             </div>
         </div>

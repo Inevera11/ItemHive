@@ -32,7 +32,7 @@ const SwitchCollection = () => {
                 </h2>
                     {userCollections.length > 0 ? (
                         <div className="flex flex-col items-center gap-4">
-                            <select className="border bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400" value={selectedCollection} onChange={handleCollectionChange}>
+                            <select className="border border-yellow-300 bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 my-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400 transition duration-200" value={selectedCollection} onChange={handleCollectionChange}>
                                 <option value="" disabled>
                                     Select a collection
                                 </option>
@@ -52,7 +52,7 @@ const SwitchCollection = () => {
                         Utwórz nową kolekcję:
                     </h2>
                     <div className="flex flex-col items-center gap-4">
-                        <input className="border bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-yellow-400" value={newCollectionName} onChange={(e) => setNewCollectionName(e.target.value)} />
+                        <input className="border border-yellow-300 bg-yellow-200 focus:bg-yellow-100 rounded-lg px-3 py-2 my-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400 transition duration-200" value={newCollectionName} onChange={(e) => setNewCollectionName(e.target.value)} />
                         <Button onClick={handleCreateCollection}>Utwórz</Button>
                     </div>
                 </div>

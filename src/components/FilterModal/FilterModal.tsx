@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FilterModalProps } from './types';
 
-const FilterModal = ({ isOpen, onApply, whitelist }: FilterModalProps) => {
+const FilterModal = ({ isOpen, onApply, onCancel, whitelist }: FilterModalProps) => {
     const [filter1, setFilter1] = useState('');
     const [filter2, setFilter2] = useState('');
 
@@ -27,7 +27,10 @@ const FilterModal = ({ isOpen, onApply, whitelist }: FilterModalProps) => {
                     </select>
                 </div>
                 <div className="flex justify-end gap-4">
-                    <button onClick={() => onApply(filter1, filter2)} className="bg-yellow-400 text-black px-4 py-2 rounded-lg">
+                    <button onClick={onCancel} className="text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-md text-sm px-5 py-2.5 transition duration-200">
+                        Anuluj
+                    </button>
+                    <button onClick={() => onApply(filter1, filter2)} className="text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-md text-sm px-5 py-2.5 transition duration-200">
                         Zastosuj
                     </button>
                 </div>

@@ -110,7 +110,12 @@ const Display = () => {
                         </Button>
                     </div>
                 </div>
-                <FilterModal isOpen={isModalOpen} onApply={handleApplyFilters} whitelist={getWhiteList()} />
+                <FilterModal
+                    isOpen={isModalOpen}
+                    onApply={handleApplyFilters}
+                    onCancel={() => setIsModalOpen(false)}
+                    whitelist={getWhiteList()}
+                />
                 <ConfirmationModal
                     isOpen={!!itemToDelete}
                     message={`Czy na pewno chcesz usunąć przedmiot ${itemToDelete}?`}
